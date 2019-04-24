@@ -192,35 +192,54 @@ public:
     }
 
     bool checkDeck(){ //checks the deck to see if there are any possible moves. Returns true if there are, and false if there are not.
-            int moves = 0;
-            for(int j=0;j<7;j++){
-                vector<card> cards = btm[j].cards;
-                for(int i = 0; i < deck.size(); i++){
-                    card x=deck.at(i);
-                    bool kingRule=(x.num==13) && (cards.size()==0);
-                    if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
-                        if((x.num+1==cards.back().num )|| kingRule){
-                            moves += 1;
-                        }
-                    }
-                }
-                for (int i = 0; i < drew.size(); i++){
-                    card x=drew.at(i);
-                    bool kingRule=(x.num==13) && (cards.size()==0);
-                    if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
-                        if((x.num+1==cards.back().num) || kingRule){
-                            moves += 1;
-                        }
+        int moves = 0;
+        for(int j=0;j<7;j++){
+            vector<card> cards = btm[j].cards;
+            for(int i = 0; i < deck.size(); i++){
+                card x=deck.at(i);
+                bool kingRule=(x.num==13) && (cards.size()==0);
+                if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
+                    if((x.num+1==cards.back().num )|| kingRule){
+                        moves += 1;
                     }
                 }
             }
-            cout << moves << endl;
-            if (moves == 0){
-                return true;
-            }else{
-                return false;
+            for (int i = 0; i < drew.size(); i++){
+                card x=drew.at(i);
+                bool kingRule=(x.num==13) && (cards.size()==0);
+                if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
+                    if((x.num+1==cards.back().num) || kingRule){
+                        moves += 1;
+                    }
+                }
             }
         }
+        for(int j=0; j<4; j++){
+            vector<card> cards = top[j].cards;
+            for(int i = 0; i < deck.size(); i++){
+                card x=deck.at(i);
+                if(((cards.back().suit==x.suit) && (x.num-1==cards.back().num)) || ((x.num==1) && (cards.size()==1))){
+                    if((x.num-1==(cards.back().num)) || ((x.num==1) && (cards.size()==1))){
+                        moves+=1;
+                    }
+                }
+            }
+            for (int i = 0; i < drew.size(); i++){
+                card x=drew.at(i);
+                if(((cards.back().suit==x.suit) && (x.num-1==cards.back().num)) || ((x.num==1) && (cards.size()==1))){
+                    if((x.num-1==(cards.back().num)) || ((x.num==1) && (cards.size()==1))){
+                        moves+=1;
+                    }
+                }
+            }
+        }
+        cout << moves << endl;
+        if (moves == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     bool checkLstack(){//Check to see if any of the cards on the btm stack can be moved
         bool out=false;
@@ -237,13 +256,20 @@ public:
                     }
                 }
             }
+            for(int j=0; j<4; j++){
+                if(((top[j].cards.back().suit==x.suit) && (x.num-1==top[j].cards.back().num)) || ((x.num==1) && (top[j].cards.size()==1))){
+                    if((x.num-1==(top[j].cards.back().num)) || ((x.num==1) && (top[j].cards.size()==1))){
+                        moves+=1;
+                    }
+                }
+            }
         }
         cout<<"Number of possible moves: "<<moves<<endl;
         if(moves==0){out=true;}
         return out;
     }
 
-    bool checkL(){
+    bool checkL(){//hub function for checking if there are any moves left
         bool out=false;
         if(checkLstack()&&checkDeck()){
             out=true;
@@ -384,6 +410,7 @@ void help(){
     cout<<"Moving a card from bottom stack to top stack: \"fb row target-row\" (fb 1 4)"<<endl;
     cout<<"Draw a card: \"draw\" (draw)"<<endl;
     cout<<"Quit: \"q\" (q)"<<endl;
+    cout<<"Reset: \"reset\" (q)"<<endl;
 }
 
 
@@ -535,7 +562,7 @@ bool cantWin(board bd){//Checks for possible moves, if none notify the player
     return output;
 }
 
-void reset(board &bd){
+void reset(board &bd){//reset the board
     srand (time(NULL));
     cout<<"RESET"<<endl;
     bd.clearAll();
