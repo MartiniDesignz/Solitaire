@@ -7,7 +7,6 @@
 using namespace std;
 
 
-
 struct card{
     /* 0=hearts
      * 1=diamond
@@ -45,7 +44,7 @@ public:
         card x=drew.back();
         bool kingRule=(x.num==13) && (cards.size()==0);
         if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
-            if(x.num+1==(cards.back().num || kingRule)){
+            if((x.num+1==cards.back().num) || kingRule){
                 cards.push_back(x);// adding card to local stack
                 drew.pop_back();// deleting card from drew stack
             }else{
@@ -192,6 +191,60 @@ public:
         }
     }
 
+    bool checkDeck(){ //checks the deck to see if there are any possible moves. Returns true if there are, and false if there are not.
+            int moves = 0;
+            for(int j=0;j<7;j++){
+                vector<card> cards = btm[j].cards;
+                for(int i = 0; i < deck.size(); i++){
+                    card x=deck.at(i);
+                    bool kingRule=(x.num==13) && (cards.size()==0);
+                    if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
+                        if((x.num+1==cards.back().num )|| kingRule){
+                            moves += 1;
+                        }
+                    }
+                }
+                for (int i = 0; i < drew.size(); i++){
+                    card x=drew.at(i);
+                    bool kingRule=(x.num==13) && (cards.size()==0);
+                    if(((cards.back().suit<2) && (x.suit>=2)) || ((cards.back().suit>=2) && (x.suit<2)) || kingRule){
+                        if((x.num+1==cards.back().num) || kingRule){
+                            moves += 1;
+                        }
+                    }
+                }
+            }
+            cout << moves << endl;
+            if (moves == 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+    bool checkLstack(){//Check to see if any of the cards on the btm stack can be moved
+        bool out=false;
+        int moves=0;
+        for(int i=0; i<7; i++){
+            card x=getFirstvis(btm[i]);//get the first visable card in the stack
+            for(int j=0; j<7; j++){
+                if(j!=i){//cant check the same stack of the card
+                    bool kingRule=(x.num==13) && (btm[j].cards.size()==0);
+                    if(((btm[j].cards.back().suit<2) && (x.suit>=2)) || ((btm[j].cards.back().suit>=2) && (x.suit<2)) || kingRule){
+                        if((x.num+1==btm[j].cards.back().num) || kingRule){
+                            moves++;
+                        }
+                    }
+                }
+            }
+        }
+        cout<<"Number of possible moves: "<<moves<<endl;
+        if(moves==0){out=true;}
+        return out;
+    }
+
+
+
     void draw(){//draw a card
         drew.push_back(deck.back());
         deck.pop_back();
@@ -291,6 +344,18 @@ private:
             out="| Clubs  |";
         }else{
             out="| Spades |";
+        }
+        return out;
+    }
+
+
+    card getFirstvis(stack s){// Get the first visible card in a stack
+        card out;
+        for(int i=0; i<s.cards.size(); i++){
+            if(s.cards.at(i).vis==true){
+                out=s.cards.at(i);
+                break;
+            }
         }
         return out;
     }
@@ -427,12 +492,31 @@ string input(board& bd){// get and interpret input functions
     return out;
 }
 
-
+// Check\Update functions
 
 void checkVis(board& bd){// Update visible cards
     for(int i=0; i<7; i++){
         bd.btm[i].cards.back().vis=true;
     }
+}
+
+bool checkWin(board bd){
+    int t=0;// total cards
+    bool output=false;
+    t+=bd.deck.size()+bd.drew.size();// add the total cards from the deck
+    for(int i=0; i<7; i++){         //  add the cards from the bottom stack
+        t+=bd.btm[i].cards.size();
+    }
+    if(t==0){output=true;}// If all the cards are in the top stacks they win
+    return output;
+}
+
+bool cantWin(board bd){//Checks for possible moves, if none notify the player
+    bool output=false;
+    for(int i=0; i<7; i++){
+        bd.btm[i].cards.back().vis=true;
+    }
+    return output;
 }
 
 int main(){
@@ -445,6 +529,7 @@ int main(){
 
     while(true){
         string str;
+        bd.checkLstack();
         str=input(bd);
         if(str=="h"){
             help();
@@ -454,8 +539,6 @@ int main(){
             checkVis(bd);
             bd.disp();
         }
-
     }
-
     return 0;
 }
