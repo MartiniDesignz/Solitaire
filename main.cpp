@@ -243,7 +243,21 @@ public:
         return out;
     }
 
+    bool checkL(){
+        bool out=false;
+        if(checkLstack()&&checkDeck()){
+            out=true;
+        }
+        return out;
+    }
 
+    void clearAll(){
+        drew.clear();
+        deck.clear();
+        for(int i=0; i<7; i++){
+            btm[i].cards.clear();
+        }
+    }
 
     void draw(){//draw a card
         drew.push_back(deck.back());
@@ -450,6 +464,8 @@ string input(board& bd){// get and interpret input functions
         }
         bd.draw();
         out="g";
+    }else if(in=="reset"){
+        out="r";
     }else if((in.front()=='m') && (in.size()==1)){//moving the cards arround the bottom
         cin>>r1;
         cin>>col;
@@ -519,6 +535,13 @@ bool cantWin(board bd){//Checks for possible moves, if none notify the player
     return output;
 }
 
+void reset(board &bd){
+    srand (time(NULL));
+    cout<<"RESET"<<endl;
+    bd.clearAll();
+    setup(bd);
+}
+
 int main(){
     srand (time(NULL));
 
@@ -529,16 +552,25 @@ int main(){
 
     while(true){
         string str;
-        bd.checkLstack();
         str=input(bd);
-        if(str=="h"){
-            help();
-        }else if(str=="q"){
-            break;
+        if(bd.checkL()){
+            cout<<"There are no more moves.";
         }else{
-            checkVis(bd);
-            bd.disp();
+            if(str=="h"){
+                help();
+            }else if(str=="q"){
+                break;
+            }else if(str=="r"){
+                cout<<"Hello"<<endl;
+                reset(bd);
+                checkVis(bd);
+                bd.disp();
+            }else{
+                checkVis(bd);
+                bd.disp();
+            }
         }
+
     }
     return 0;
 }
